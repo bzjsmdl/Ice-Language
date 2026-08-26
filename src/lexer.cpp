@@ -14,8 +14,8 @@ namespace lexer {
 					char quote = text[i];
 					char* chrp = strchr(text + i + 1, quote);
 					if (chrp == nullptr) {
-						if (quote == '\"') printf("In (%s:%llu:%llu): \n\terror: String not closed.\n", srcf, line, i - ls + 1);
-						else printf("In (%s:%llu:%llu): \n\terror: Character not closed.\n", srcf, line, i - ls + 1);
+						if (quote == '\"') printf("In (%s:%llu:%llu): \n\terror: string not closed.\n", srcf, line, i - ls + 1);
+						else printf("In (%s:%llu:%llu): \n\terror: character not closed.\n", srcf, line, i - ls + 1);
 						error = true;
 						break;
 					}
@@ -42,7 +42,7 @@ namespace lexer {
 						i++;
 					}
 					if (i >= length) {
-						printf("In (%s:%llu:%llu): \n\terror: Block comment not closed.\n", srcf, line, ((i - ls) + 1));
+						printf("In (%s:%llu:%llu): \n\terror: block comment not closed.\n", srcf, line, ((i - ls) + 1));
 						error = true;
 						break;
 					}
@@ -66,7 +66,7 @@ namespace lexer {
 					if (buf[0] == '\\' && buf[1] == '\n') nl = true;
 					else if (buf[0] == quote) goto s;
 					else if (!nl && (buf[0] == '\n' || i + 1 >= length)) {
-						printf("In (%s:%llu:%llu):\n\terror: The string misses closing quote.\n", srcf, line, start - ls + 1);
+						printf("In (%s:%llu:%llu):\n\terror: this string was missing closing quote.\n", srcf, line, start - ls + 1);
 						error = true;
 					}
 					else if (nl && buf[0] == '\n') nl = false;
@@ -106,46 +106,50 @@ namespace lexer {
 							tok->type = Number;
 							if (memcmp("0b", tok->token, 2) == 0) {
 								std::string cpy = tok->token;
-								for (unsigned long long int j = 2; j < strlen(tok->token); j++) {
+								for (unsigned long long int j = 2; j < cpy.length(); j++) {
 									if (tok->token[j] == '0' || tok->token[j] == '1') continue;
 									else {
 										error = true;
-										cpy.erase(j);
+										cpy.erase(cpy.begin() + j);
+										j--;
 									}
 								}
 								if (strcmp(cpy.c_str(), tok->token) != 0) {
 									if (cpy.empty()) cpy = "0b0";
-									printf("In (%s:%llu:%llu):\n\t error: Invalid binary. Do you mean %s?\n", srcf, tok->line, tok->column, cpy.c_str());
+									printf("In (%s:%llu:%llu):\n\t error: invalid binary %s; did you mean %s?\n", srcf, tok->line, tok->column, tok->token, cpy.c_str());
 								}
 							}
 							else if (memcmp("0x", tok->token, 2) == 0) {
 								std::string cpy = tok->token;
-								for (unsigned long long int j = 2; j < strlen(tok->token); j++) {
-									if (isxdigit(buf[0])) continue;
-									else {
+								for (unsigned long long int j = 2; j < cpy.length(); j++) {
+									if (!isxdigit(tok->token[j])) {
 										error = true;
-										cpy.erase(j);
+										cpy.erase(cpy.begin() + j);
+										j--;
 									}
 								}
 								if (strcmp(cpy.c_str(), tok->token) != 0) {
 									if (cpy.empty()) cpy = "0x0";
-									printf("In (%s:%llu:%llu):\n\t error: Invalid hexadecimal. Do you mean %s?\n", srcf, tok->line, tok->column, cpy.c_str());
+									printf("In (%s:%llu:%llu):\n\t error: invalid hexadecimal %s; did you mean %s?\n", srcf, tok->line, tok->column, tok->token, cpy.c_str());
 								}
 							}
 							else {
 								bool dot = false;
 								std::string cpy = tok->token;
-								for (unsigned long long int j = 0; j < strlen(tok->token); j++) {
-									if (isdigit(tok->token[j]) || (!dot && tok->token[j] == '.')) continue;
+								for (unsigned long long int j = 0; j < cpy.length(); j++) {
+									if (!dot && tok->token[j] == '.') dot = true;
+									else if (isdigit(tok->token[j])) continue;
 									else {
 										error = true;
-										cpy.erase(j);
+										cpy.erase(cpy.begin() + j);
+										j--;
 									}
 								}
 								if (strcmp(cpy.c_str(), tok->token) != 0) {
+									if (cpy[0] == '0') cpy.erase(cpy.begin());
 									if (cpy.empty())
 										cpy = (dot) ? "0.0" : "0";
-									printf("In (%s:%llu:%llu):\n\t error: Invalid number. Do you mean %s?\n", srcf, tok->line, tok->column, cpy.c_str());
+									printf("In (%s:%llu:%llu):\n\t error: invalid number %s; did you mean %s?\n", srcf, tok->line, tok->column, tok->token, cpy.c_str());
 								}
 							}
 						}
@@ -154,11 +158,11 @@ namespace lexer {
 							std::string cpy = tok->token;
 							unsigned int chr_max_len = 3;
 							if (cpy.find('\\') != cpy.npos) chr_max_len++;
-							if (tok->token[0] == '\'' && strlen(tok->token) != chr_max_len) {
+							if (tok->token[0] == '\'' && cpy.length() != chr_max_len) {
 								cpy.erase(cpy.begin() + chr_max_len, cpy.begin() + cpy.length());
 								cpy[chr_max_len - 1] = '\'';
 								error = true;
-								printf("In (%s:%llu:%llu):\n\t error: Invalid character %s? Do you mean %s?\n", srcf, tok->line, tok->column, tok->token, cpy.c_str());
+								printf("In (%s:%llu:%llu):\n\t error: invalid character %s; did you mean %s?\n", srcf, tok->line, tok->column, tok->token, cpy.c_str());
 							}
 						}
 						else if (ispunct(tok->token[0])) tok->type = Delimiter;
@@ -166,7 +170,7 @@ namespace lexer {
 						else if (isalpha(tok->token[0]) || tok->token[0] == '_') tok->type = Identifier;
 						else {
 							tok->type = Nothing;
-							printf("In (%s:%llu:%llu): error: Unkown token %s.\n", srcf, tok->line, tok->column, tok->token);
+							printf("In (%s:%llu:%llu): error: unkown token %s.\n", srcf, tok->line, tok->column, tok->token);
 						}
 					}
 					tokens.push_back(tok);

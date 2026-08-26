@@ -3,12 +3,14 @@
 int main(int argc, const char** argv) {
 	bool error = false;
 	if (argc < 3) {
-		printf("error: Input file and output file not found.\n");
+		printf("error: input file and output file not found.\n");
+		printf("compilation terminated.\n");
 		return 1;
 	}
 	FILE* src = fopen(argv[1], "rb");
 	if (src == nullptr) {
-		printf("error: Input file not found.\n");
+		printf("error: input file not found.\n");
+		printf("compilation terminated.\n");
 		return 1;
 	}
 	unsigned long long int nfo = ftell(src);
@@ -23,17 +25,20 @@ int main(int argc, const char** argv) {
 			delete tok;
 		}
 		delete text;
+		printf("compilation terminated.\n");
 		return 1;
 	}
 	delete text;
+	// for (auto& tok : lexer::tokens) printf("Token %s of %u at (%s:%llu:%llu)\n", tok->token, tok->type, argv[1], tok->line, tok->column);
 	if (parser::main(lexer::tokens, lexer::tokens.size(), argv[1])) {
-		for (auto& tok : lexer::tokens) {
-			delete tok->token;
-			delete tok;
-		}
+		printf("compilation terminated.\n");
 		return 1;
 	}
-	PrintAST(parser::root, 0);
+	for (auto& tok : lexer::tokens) {
+		delete tok->token;
+		delete tok;
+	}
+	cgen::PrintAST(parser::root, 0);
 	FILE* out = fopen(argv[2], "wb");
 	cgen::main(parser::root, out);
 	fclose(out);
