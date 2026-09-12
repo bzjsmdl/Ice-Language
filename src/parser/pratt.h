@@ -55,7 +55,7 @@ class pratt {
 		node->child.push_back(cnode);
 		if (!strequ("{", tokens[i]->token)) {
 			error = true;
-			printf("In (%s:%llu:%llu): \n\terror: invalid character %s in match expression.\n", srcf.c_str(), tokens[j]->line, tokens[j]->column, tokens[j]->token);
+			printf("In (%s:%llu:%llu): \n\terror: invalid character %s in match expression.\n", srcf.c_str(), tokens[i]->line, tokens[i]->column, tokens[i]->token);
 		}
 		i++;
 		// match cnode { expr1 => expr2; }
@@ -63,10 +63,10 @@ class pratt {
 			Node* expr1 = main(0);
 			if (!strequ("=>", tokens[i]->token)) {
 				error = true;
-				printf("In (%s:%llu:%llu): \n\terror: invalid character %s in match statement.\n", srcf.c_str(), tokens[j]->line, tokens[j]->column, tokens[j]->token);
+				printf("In (%s:%llu:%llu): \n\terror: invalid character %s in match statement.\n", srcf.c_str(), tokens[i]->line, tokens[i]->column, tokens[i]->token);
 			}
-			j++;
-			
+			i++;
+
 		}
 		return node;
 	}
