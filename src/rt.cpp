@@ -18,10 +18,13 @@ namespace rt {
 		Operator op;
 
 		// bp 100
+		op.left = ""; op.right = "extract"; op.mid = true; op.inner = true; op.overload = false; op.right_binding = true; op.binding_power = 90; op.ternary = false;
+		optable.push_back(op);
+
 		op.left = ""; op.right = "."; op.mid = true; op.inner = true; op.overload = false; op.right_binding = false; op.binding_power = 100; op.ternary = false;
 		optable.push_back(op);
 
-		op.left = ""; op.right = "with"; op.mid = true; op.inner = true; op.overload = false; op.right_binding = true; op.binding_power = 100; op.ternary = false;
+		op.left = ""; op.right = "with"; op.mid = true; op.inner = true; op.overload = false; op.right_binding = true; op.binding_power = 90; op.ternary = false;
 		optable.push_back(op);
 
 		op.left = ""; op.right = "<-"; op.mid = true; op.inner = true; op.overload = false; op.right_binding = true; op.binding_power = 100; op.ternary = false;

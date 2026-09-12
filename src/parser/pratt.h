@@ -1,16 +1,37 @@
 #pragma once
 #include "../include/parser.h"
+#include "parser.h"
 
 class pratt {
 	public:
+	unsigned long long int i = 0;
+	bool error = false;
+	pratt(unsigned long long int i, std::string srcf, std::vector<lexer::Token*> tokens, unsigned long long int size, bool error): i(i), srcf(srcf), tokens(tokens), size(size), error(error) {
+		;
+	}
+	Node* main(unsigned int rbp) {
+		Node* left = nud();
+		while (i < size && GetBindingPower(tokens[i]->token) > rbp && left != nullptr) {
+			if (IsRightBinding(tokens[i]->token) && !(GetBindingPower(tokens[i]->token) >= rbp)) break;
+			else if (!IsRightBinding(tokens[i]->token) && !(GetBindingPower(tokens[i]->token) > rbp)) break;
+			if (strequ(stop_del.c_str(), tokens[i]->token)) {
+				stop_del.clear();
+				break;
+			}
+			left = led(left);
+		}
+		return left;
+	}
+	
+
+	private:
 	std::vector<lexer::Token*> tokens;
 	unsigned long long int size;
 	std::string srcf;
-	bool error = false;
-
-	unsigned long long int i = 0;
 	bool inner = false;
 	std::string stop_del;
+
+	// Utils
 	unsigned int GetBindingPower(std::string right) {
 		for (auto& op : optable) {
 			if (op.left.empty() && strequ(op.right.c_str(), right.c_str())) return op.binding_power;
@@ -24,21 +45,33 @@ class pratt {
 		}
 		return false;
 	}
-	Node* main(unsigned int rbp) {
-		Node* left = nud();
-		// printf("Can Run!\n");
-		// printf("left = %p\n", left);
-		while (i < size && GetBindingPower(tokens[i]->token) > rbp && left != nullptr) {
-			if (IsRightBinding(tokens[i]->token) && !(GetBindingPower(tokens[i]->token) >= rbp)) break;
-			else if (!IsRightBinding(tokens[i]->token) && !(GetBindingPower(tokens[i]->token) > rbp)) break;
-			if (strequ(stop_del.c_str(), tokens[i]->token)) {
-				stop_del.clear();
-				break;
-			}
-			left = led(left);
+
+	// Special Expression
+	Node* match(Node*& parent) {
+		i++;
+		Node* node = new Node();
+		node->type = Expression; node->value = "match";
+		Node* cnode = main(0);
+		node->child.push_back(cnode);
+		if (!strequ("{", tokens[i]->token)) {
+			error = true;
+			printf("In (%s:%llu:%llu): \n\terror: invalid character %s in match expression.\n", srcf.c_str(), tokens[j]->line, tokens[j]->column, tokens[j]->token);
 		}
-		return left;
+		i++;
+		// match cnode { expr1 => expr2; }
+		for (; i < size && !strequ("}", tokens[i]->token);) {
+			Node* expr1 = main(0);
+			if (!strequ("=>", tokens[i]->token)) {
+				error = true;
+				printf("In (%s:%llu:%llu): \n\terror: invalid character %s in match statement.\n", srcf.c_str(), tokens[j]->line, tokens[j]->column, tokens[j]->token);
+			}
+			j++;
+			
+		}
+		return node;
 	}
+
+
 	Node* nud() {
 		if (tokens[i]->type != lexer::Delimiter) {
 			Node* node = new Node();

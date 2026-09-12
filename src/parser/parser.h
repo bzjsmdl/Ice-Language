@@ -46,7 +46,6 @@ class parser {
 		}
 	private:
 		bool error = false;
-
 	unsigned long long int import(unsigned long long int i, Node*& parent) {
 		unsigned long long int j = i + 1;
 		std::string path = "";
@@ -300,7 +299,6 @@ class parser {
 			for (; j < size && !strequ(tokens[j]->token, ")");) {
 				if (strequ(",", tokens[j]->token)) j++;
 				j = type(j, node);
-				cgen::PrintAST(node, 0);
 			}
 			j++;
 		}
@@ -442,15 +440,13 @@ class parser {
 		return j;
 	}
 	unsigned long long int expr(unsigned long long int i, Node*& parent) {
-		pratt p = pratt();
-		p.i = i; p.error = error; p.size = size;
-		p.srcf = srcf.c_str(); p.tokens = tokens;
-		Node* expr_ = p.main(0);
+		pratt _pratt = pratt(i, srcf, tokens, size, error);
+		Node* expr_ = _pratt.main(0);
+		error = _pratt.error;
 		parent->child.push_back(expr_);
 		if (expr_ != nullptr) {
-			return p.i;
+			return _pratt.i;
 		}
-		error = true;
 		printf("In (%s:%llu:%llu): \n\terror: failed to parse expression.\n", srcf.c_str(), tokens[i]->line, tokens[i]->column, tokens[i]->token);
 		return i;			
 	}
