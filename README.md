@@ -1,4 +1,2 @@
 # Ice-Language
-```c
-// djgeyftefd // Test
-```
+It's a toy language. I haven't finished it. Don't use it.
