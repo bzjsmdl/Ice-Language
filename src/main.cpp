@@ -5,6 +5,8 @@
 std::map<std::string, std::string> ImportFile;
 std::vector<Operator> optable;
 int main(int argc, const char** argv) {
+	char* tmp_env = getenv("IGLOO");
+	ImportFile["std"] = (utils::unix_path(tmp_env) + "/lib/std/src/main.ice");
 	Node* _ast = core::AstCompile(argv[1]);
 	if (_ast == nullptr) {
 		printf("compilation terminated.\n");

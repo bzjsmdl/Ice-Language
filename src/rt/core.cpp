@@ -63,6 +63,7 @@
 					std::string format = error["format"];
 					utils::string_replace(format, "{e}", e);
 					utils::string_replace(format, "{src_file}", src_file);
+					utils::string_replace(format, "{col}", std::to_string(column));
 					std::string __line = std::to_string(line);
 					utils::string_replace(format, "{line}", __line);
 					std::string MaxSpaceLen;
@@ -70,31 +71,30 @@
 					do {
 						MaxSpaceLen.clear();
 						for (unsigned long long int i = 0; i < line_length; i++) MaxSpaceLen.append(" ");
-						utils::string_replace(format, "{MaxSpaceLen}", MaxSpaceLen);
 					} while (utils::string_replace(format, "{MaxSpaceLen}", MaxSpaceLen));
-					utils::string_replace(format, "{col}", std::to_string(column));
-
 					std::string _line = utils::GetLineText(src_file, line);
+
 					utils::string_replace(format, "{current_line}", _line);
 
 					std::string tmp = (error.contains("->col")) ? error["->col"] : "$5$Sr^^^$r";
-					unsigned long long int ntl = (column - utils::GetColorStringLength(tmp) - line_length);
+					unsigned long long int ntl = (column - utils::GetColorStringLength(tmp));
 					for (unsigned long long int i = 0; i < ntl; i++) {
 						tmp.insert(tmp.begin(), ' ');
 					}
 					utils::string_replace(format, "{->col}", tmp);
 
-					std::string help = _help;
-					for (unsigned long long int i = 0; i < ntl; i++) {
-						help.insert(help.begin(), ' ');
+					if (!_help.empty()) {
+						std::string help = _help;
+						for (unsigned long long int i = 0; i < ntl; i++) {
+							help.insert(help.begin(), ' ');
+						}
+						utils::string_replace(format, "{help:col}", help);
 					}
-					utils::string_replace(format, "{help:col}", help);
-
 					fmt::print(format);
 					return _error;
 				}
 			}		
 		}
-		printf("%s:%llu:%llu error: %llu %s\n", src_file.c_str(), line, column, e, _help.c_str());
+		printf("%s:%llu:%llu error: %s %s\n", src_file.c_str(), line, column, e.c_str(), _help.c_str());
 		return _error;
 	}

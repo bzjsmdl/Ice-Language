@@ -24,7 +24,9 @@
 	std::string utils::GetLineText(std::string src_file, unsigned long long int line) {
 		std::ifstream _ifs = std::ifstream(src_file.c_str());
 		std::string current_line;
-		for (unsigned long long int i = 0; i < line; i++) std::getline(_ifs, current_line);
+		for (unsigned long long int i = 0; i < line; i++) {
+			std::getline(_ifs, current_line);
+		}
 		return current_line;
 	}
 	size_t utils::GetColorStringLength(std::string s) {

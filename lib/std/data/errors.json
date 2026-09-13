@@ -1,7 +1,7 @@
 {
     "std:InvalidString" : {
         "type" : "error",
-        "format" : "$1$Serror$r {e}: error: string not closed.\n--> $S{src_file}$r\n{MaxSpaceLen}|\n{line} |{current_line}\n{MaxSpaceLen}|{->col}\n{MaxSpaceLen}|\n",
+        "format" : "$1$Serror$r $9$S{e}$r: error: string not closed.\n--> $S{src_file}$r\n{MaxSpaceLen}|\n{line} |{current_line}\n{MaxSpaceLen}|{->col}\n",
         "->col" : "$5$S^$r"
     }
 }
