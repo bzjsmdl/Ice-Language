@@ -1,8 +1,11 @@
 // Don't want to change it!
-#ifndef ICE_PARSER_H
-#define ICE_PARSER_H
+#pragma once
 
 #include "../include/parser.h"
+
+#include "../rt/ast.hpp"
+#include "../rt/utils.hpp"
+
 
 class parser {
 	public:
@@ -18,13 +21,13 @@ class parser {
 		parser(std::vector<lexer::Token*>& toks, unsigned long long int _size, const char* _srcf) {
 			char* tmp_env = getenv("IGLOO");
 			char* tmp_cwd = getcwd(NULL, 0);
-			env = rt::unix_path(tmp_env);
-			cwd = rt::unix_path(tmp_cwd);
+			env = utils::unix_path(tmp_env);
+			cwd = utils::unix_path(tmp_cwd);
 
 			root = new Node();
 			tokens = toks;
 			size = _size;
-			srcf = rt::unix_path(_srcf);
+			srcf = utils::unix_path(_srcf);
 			
 			if (srcf[0] == '.' && srcf.c_str()[1] == '/') {
 				srcf.erase(srcf.begin());
@@ -33,11 +36,12 @@ class parser {
 			else if (srcf[0] == '.' && srcf.c_str()[1] == '.') {
 				srcf.insert(0, cwd);
 			}
-			rt::parser_init();
+			core::parser_init();
 			root->type = Moudle; root->value = srcf.c_str();
 			root->value.erase(root->value.begin(), root->value.begin() + root->value.find_last_of('/') + 1);
 			root->value.erase(root->value.begin() + root->value.find_last_of('.'), root->value.end());
-			ImportFile.push_back(srcf);
+			ImportFile[root->value] = srcf;
+			ImportFile["std"] = (env + "lib/std/src/main.ice");
 		}
 
 		bool main() {
@@ -47,7 +51,7 @@ class parser {
 			return error;
 		}
 	private:
-	unsigned long long int import(unsigned long long int i, Node*& parent) {
+	unsigned long long int impoutils(unsigned long long int i, Node*& parent) {
 		unsigned long long int j = i + 1;
 		std::string path = "";
 		bool first = true;
@@ -70,7 +74,7 @@ class parser {
 			}
 			else {
 				error = true;
-				printf("In (%s:%llu:%llu): \n\terror: invalid delimiter %s in import statement.\n", srcf.c_str(), tokens[j]->line, tokens[j]->column, tokens[j]->token);
+				printf("In (%s:%llu:%llu): \n\terror: invalid delimiter %s in impoutils statement.\n", srcf.c_str(), tokens[j]->line, tokens[j]->column, tokens[j]->token);
 			}
 			first = false;
 		}
@@ -90,8 +94,8 @@ class parser {
 		// 	}
 		// 	else fclose(handle);
 		// }
-		// if (std::find(ImportFile.begin(), ImportFile.end(), path) == ImportFile.end()) {
-		// 	ImportFile.push_back(path);
+		// if (std::find(ImpoutilsFile.begin(), ImpoutilsFile.end(), path) == ImpoutilsFile.end()) {
+		// 	ImpoutilsFile.push_back(path);
 		// 	Node* lib_ast = nullptr;
 		// 	lib_ast = AstCompile(path.c_str());
 		// 	parent->child.push_back(lib_ast);
@@ -147,9 +151,9 @@ class parser {
 			}
 			j++;
 		}
-		else if (strequ(tokens[j]->token, "import")) {
+		else if (strequ(tokens[j]->token, "impoutils")) {
 			delete visibility;
-			j = import(j, parent);
+			j = impoutils(j, parent);
 		}
 		else {
 			delete visibility;
@@ -452,8 +456,8 @@ class parser {
 			node->child.push_back(cnode);
 			j++;
 		}
-		else if (strequ(tokens[j]->token, "import")) {
-			j = import(j, node);
+		else if (strequ(tokens[j]->token, "impoutils")) {
+			j = impoutils(j, node);
 		}
 		else if (tokens[j]->type == lexer::Identifier && strequ(":", tokens[j + 1]->token)) {
 			Node* cnode = new Node();
@@ -687,4 +691,3 @@ class parser {
 		return nullptr;
 	}
 };
-#endif

@@ -4,6 +4,9 @@
 // Library
 #include <bits/stdc++.h>
 
+// Include third-party json library
+#include <nlohmann/json.hpp>
+
 // Macro
 #define strequ(s, S) (strcmp(s, S) == 0)
 #define IsKeyword(s) (strequ(s, "if") || strequ(s, "else") || strequ(s, "while") || strequ(s, "goto") ||\
@@ -18,13 +21,6 @@
 					strequ(s, "float32") || strequ(s, "float64") || strequ(s, "ssize") || strequ(s, "null"))
 
 #define IsAttribute(s) (strequ(s, "@init") || strequ(s, "@deinit"))
-
-// Runtime
-namespace rt {
-	unsigned long long int flen(FILE* file);
-	void parser_init();
-	std::string unix_path(std::string path);
-}
 
 // typedef struct {
 // 	enum SymbolType{
@@ -77,6 +73,12 @@ class lexer {
 
 // Parser
 #include "../parser/parser.h"
+
+// Semantic
+// #include "../sema/main.hpp"
+
+// Runtime
+#include "rt.h"
 
 #endif
 

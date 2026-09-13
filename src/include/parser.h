@@ -5,7 +5,7 @@
 
 extern std::vector<Operator> optable;
 // std::vector<Symbol*> SymbolTable;
-extern std::vector<std::string> ImportFile;
+extern std::map<std::string, std::string> ImportFile;
 
 typedef enum {
 	Moudle,
@@ -45,9 +45,3 @@ typedef struct ASTNode {
 } Node;
 
 Node* AstCompile(const char* _src);
-
-namespace cgen{
-	// void main(Node* node, FILE* out);
-	void PrintAST(Node* node, unsigned int dep);
-	void FreeAST(Node* node);
-}

@@ -1,6 +1,7 @@
-#include "include/lang.h"
+#pragma once
+#include "../include/rt.h"
 
-namespace cgen {
+namespace ast {
     void PrintAST(Node* node, unsigned int dep) {
         if (!node) return;
 

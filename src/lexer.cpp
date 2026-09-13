@@ -13,7 +13,10 @@
 					char quote = text[i];
 					char* chrp = strchr(text + i + 1, quote);
 					if (chrp == nullptr) {
-						if (quote == '\"') printf("In (%s:%llu:%llu): \n\terror: string not closed.\n", srcf, line, i - ls + 1);
+						if (quote == '\"') {
+							core::ReportError("std:InvalidString", srcf, line, i = ls + 1, "");
+							printf("In (%s:%llu:%llu): \n\terror: string not closed.\n", srcf, line, i - ls + 1);
+						}
 						else printf("In (%s:%llu:%llu): \n\terror: character not closed.\n", srcf, line, i - ls + 1);
 						error = true;
 						break;
